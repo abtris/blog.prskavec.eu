@@ -1,6 +1,7 @@
 auto: true
 server: true
-permalink: none
+baseurl: /blog.prskavec.net
+permalink: date
 safe: true
 source: blog.prskavec.net
 destination: _site
