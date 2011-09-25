@@ -1,0 +1,42 @@
+--- 
+layout: post
+title: PHP CodeBrowser and Hudson integration
+published: true
+meta: 
+  delicious: a:3:{s:5:"count";s:1:"6";s:9:"post_tags";s:0:"";s:4:"time";s:10:"1315952954";}
+  _edit_last: "2153812"
+  _edit_lock: "1260468540"
+  reddit: a:2:{s:5:"count";s:1:"0";s:4:"time";s:10:"1315952954";}
+tags: 
+- codebrowser
+- hudson
+- php
+- phpunit
+- qa
+type: post
+status: publish
+---
+I read about <a href="http://blog.thinkphp.de/archives/464-PHP_CodeBrowser-Release-version-0.1.0.html">PHP_CodeBrowser</a> and their html reports are nice.
+
+How can add this reports to Hudson ?
+
+Use <a href="http://wiki.hudson-ci.org/display/HUDSON/HTML+Publisher+Plugin">HTML Publisher Plugin</a>!
+
+It's easy, add to your build script new target phpcb in this style:
+<code>
+&lt;target name="phpcb"&gt;
+&lt;exec executable="phpcb" dir="${basedir}/source"&gt;
+&lt;arg line="--log reports/logs/
+--source source/
+--output reports/phpcb/" /&gt;
+&lt;/exec&gt;
+&lt;/target&gt;
+</code>
+
+Don't forget install HTML Publisher Plugin and make in job settings to directory with reports:
+
+<a href="http://toptopic.files.wordpress.com/2009/12/hudson_phpcb.png"><img class="aligncenter size-full wp-image-139" title="hudson_phpcb" src="http://toptopic.files.wordpress.com/2009/12/hudson_phpcb.png" alt="" width="720" height="89" /></a>
+
+Reports are done:
+
+<a href="http://toptopic.files.wordpress.com/2009/12/hudson-phpcb-3.png"><img class="aligncenter size-full wp-image-140" title="hudson-phpcb-3" src="http://toptopic.files.wordpress.com/2009/12/hudson-phpcb-3.png" alt="" width="720" height="281" /></a>

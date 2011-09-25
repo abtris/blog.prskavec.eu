@@ -1,0 +1,93 @@
+--- 
+layout: post
+title: PHP and Hudson
+published: true
+meta: 
+  delicious: a:3:{s:5:"count";s:2:"85";s:9:"post_tags";s:0:"";s:4:"time";s:10:"1315952958";}
+  _edit_lock: "1235682548"
+  _edit_last: "2153812"
+  reddit: a:2:{s:5:"count";s:1:"0";s:4:"time";s:10:"1315952959";}
+tags: 
+- continuous integration
+- hudson
+- php
+type: post
+status: publish
+---
+Hudson is extensible continuous integration engine used for Java projects. It's architecture can be used for others languages as PHP too.
+<h2>Install</h2>
+<ol>
+	<li><a href="http://hudson.gotdns.com/latest/hudson.war">download war file</a></li>
+	<li>run direct in console java -jar hudson.war (free port 8080 andJDK 1.5+)</li>
+	<li>or make install to servlet server (Tomcat, Jetty, JBoss, …)</li>
+	<li>after that go <a href="http://localhost:8080/">http://localhost:8080</a></li>
+	<li>plugins recommended for php
+<ul>
+	<li><a href="http://hudson.gotdns.com/wiki/display/HUDSON/Checkstyle+Plugin">Hudson Checkstyle Plug-in</a></li>
+	<li><a href="http://wiki.hudson-ci.org/display/HUDSON/Clover+Plugin">Hudson Clover plugin</a></li>
+	<li><a href="http://wiki.hudson-ci.org/display/HUDSON/PMD+Plugin">Hudson PMD Plug-in</a></li>
+</ul>
+</li>
+</ol>
+<a href="http://blog.prskavec.net/wp-content/uploads/2009/02/01_dashboard-hudson_1235663237019.png"><img class="aligncenter" src="http://blog.prskavec.net/wp-content/uploads/2009/02/01_dashboard-hudson_1235663237019-300x222.png" alt="" width="300" height="222" /></a>
+<h2>Build</h2>
+For build can use <a href="http://phing,info">phing</a> (example) or ant.
+
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project name="start_page" basedir="." default="main"&gt;
+&lt;!-- $Id: build.xml 102 2009-02-26 14:39:10Z abtris $ --&gt;
+&lt;property name="tmp" value="/tmp" /&gt;
+&lt;property name="wsname" value="source" /&gt;
+&lt;property name="package"  value="${phing.project.name}" override="true" /&gt;
+&lt;property name="builddir" value="${tmp}/build/${phing.project.name}" override="true" /&gt;
+&lt;property name="srcdir"   value="./src/" override="true" /&gt;
+
+&lt;!-- Main Target --&gt;
+&lt;target name="main" description="main target"&gt;
+
+&lt;!-- Create dirs --&gt;
+&lt;mkdir dir="${builddir}/reports"/&gt;
+&lt;mkdir dir="${builddir}/reports/coverage"/&gt;
+
+&lt;!-- PHP API Documentation --&gt;
+&lt;phpdoc title="API Documentation"
+destdir="${builddir}/apidocs"
+sourcecode="yes"
+defaultpackagename="StartPage"
+output="HTML:Smarty:PHP"&gt;
+&lt;fileset dir="."&gt;
+&lt;include name="*/*.php" /&gt;
+&lt;/fileset&gt;
+&lt;/phpdoc&gt;
+
+&lt;!-- PHP CodeSniffer --&gt;
+&lt;exec command="phpcs --standard=ZEND --report=checkstyle ${ws}/${wsname}/src/ &gt; ${builddir}/reports/checkstyle.xml" escape="false" /&gt;
+
+&lt;!-- PHPUnit --&gt;
+&lt;exec command="phpunit --log-xml ${builddir}/reports/phpunit.xml --log-pmd ${builddir}/reports/phpunit.pmd.xml --coverage-clover ${builddir}/reports/coverage/clover.xml --coverage-html ${builddir}/reports/coverage/ tests/AllTests.php"/&gt;
+
+&lt;/target&gt;
+&lt;/project&gt;
+</pre>
+
+<h2>Example configuration</h2>
+Project name: StartPage
+Source Code Management: Subversion
+Repository URL: https://localhost/svn/start_page/trunk
+Local module directory (optional): source
+Use update: true
+<h3>Build</h3>
+Execute shell: phing -f $WORKSPACE/source/build.xml -Dws=$WORKSPACE -Dtmp=$WORKSPACE
+<h3>Post-build action</h3>
+<strong>Publish Javadoc</strong>
+Javadoc directory = build/start_page/apidocs/
+Retain javadoc for each successful build = false
+<strong>Publish JUnit test result report</strong>
+Test report XMLs = build/start_page/reports/phpunit.xml
+<strong>Publish Checkstyle analysis results</strong>
+Checkstyle results = build/start_page/reports/checkstyle.xml
+<strong>Publish PMD analysis results</strong>
+PMD results = build/start_page/reports/phpunit.pmd.xml
+<strong>Publish Clover Coverage Report</strong>
+Clover report directory = build/start_page/reports/coverage/

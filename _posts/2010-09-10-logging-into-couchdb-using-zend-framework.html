@@ -1,0 +1,184 @@
+--- 
+layout: post
+title: Logging into CouchDb using Zend Framework
+published: true
+meta: 
+  delicious: a:3:{s:5:"count";s:1:"2";s:9:"post_tags";s:0:"";s:4:"time";s:10:"1315952952";}
+  _edit_lock: "1284138616"
+  _edit_last: "2153812"
+  _wp_old_slug: ""
+  reddit: a:2:{s:5:"count";s:1:"0";s:4:"time";s:10:"1315952953";}
+  jabber_published: "1284138409"
+tags: 
+- couchdb
+- php
+type: post
+status: publish
+---
+Logging in web applications are common task. Mostly i'm using logging into files. When you can some statistics data is better use database for logs. You can use RBMS (MySQL, PostgreSQL) but is problem with changing schema. NoSQL database as CouchDb can be solution. Here is my implementation in Zend Framework.
+
+For writing into database i use log writer:
+<pre>
+class App_Log_Writer_CouchDb extends Zend_Log_Writer_Abstract
+{
+    /**
+     * Db
+     * @var Phly_Couch
+     */
+    private $_db;
+    /**
+     * CouchDb host localhost default
+     * @var string
+     */
+    private $_host;
+    /**
+     * Couchdb port 3184 default
+     * @var int
+     */
+    private $_port;
+    /**
+     *
+     * @param array $params
+     * @return void
+     */
+    public function __construct($dbname, $options = null)
+    {
+        if (is_null($options)) {
+            $options['host'] = "localhost";
+            $options['port'] = "5984";
+            $options['db'] = $dbname;
+        }
+        $this-&gt;_db = new Phly_Couch($options);
+    }
+
+    static public function factory($config)
+    {
+        $config = self::_parseConfig($config);
+        return $config;
+    }
+    /**
+     * @param array $event
+     * @return void
+     */
+    protected function _write($event)
+    {
+        // action body
+        $doc = new Phly_Couch_Document($event);
+        $result = $this-&gt;_db-&gt;docSave($doc);
+        // return array ok, id, rev
+        $info = $result-&gt;getInfo();
+        if (!$info['ok']) {
+            throw new Zend_Log_Exception("Error in save to CouchDb");
+        }
+    }
+
+}
+</pre>
+
+In application ini have to set libraries and options for connect to CouchDb database, you can make yours on <a href="http://couchone.com">http://couchone.com</a> or use local instalation. More info for instalation you can find in <a href="http://wiki.apache.org/couchdb/Installation">Couch Db wiki</a>.
+
+<pre>
+autoloaderNamespaces.phly = "Phly_"
+autoloaderNamespaces.app = "App_"
+; Options for CouchDb
+couchdb.host = prskavec.couchone.com
+couchdb.port = 80
+couchdb.db = "test-log"
+</pre>
+
+in indexController i have two action, indexAction for display logs and logAction for creating some dummy log records.
+
+<pre>
+class IndexController extends Zend_Controller_Action
+{
+    protected $_config;
+
+    public function preDispatch()  
+    {
+            $this-&gt;_config = new Zend_Config_Ini('../application/configs/'.
+                    'application.ini', APPLICATION_ENV);
+    }
+
+    public function indexAction()
+    {
+         $db = new Phly_Couch($this-&gt;_config-&gt;couchdb);
+
+         $this-&gt;view-&gt;form = $form = new App_Form_Filter();
+         if ($this-&gt;getRequest()-&gt;isPost()) {
+             $formData = $this-&gt;getRequest()-&gt;getPost();
+             if ($form-&gt;isValid($formData)) {
+                 $filterValue = $form-&gt;getValue('filter');
+                 $dateFrom = $form-&gt;getValue('datefrom');
+                 $dateTo = $form-&gt;getValue('dateto');
+                 if (empty($filterValue) || $filterValue===0) $filterValue = null;
+                 if (empty($dateFrom)) $dateFrom = null;
+                 if (empty($dateTo)) $dataTo = null;
+                 if (!is_null($dateFrom) &amp;&amp; !is_null($dateTo)) {
+                 $result = $db-&gt;view('logger','log_by_timestamp', array($dateFrom, $dateTo), array("db"=&gt;$this-&gt;_config-&gt;couchdb-&gt;db));
+                 } else {
+                 $result = $db-&gt;view('logger','log_by_prior', $filterValue, array("db"=&gt;$this-&gt;_config-&gt;couchdb-&gt;db));
+                 }
+
+             } else {
+             $form-&gt;populate($formData);
+             }
+         } else {
+            $result = $db-&gt;view('logger','log_by_prior', null, array("db"=&gt;$this-&gt;_config-&gt;couchdb-&gt;db));         
+         }         
+         $this-&gt;view-&gt;docs = $result-&gt;toArray();
+         $this-&gt;view-&gt;messages = $this-&gt;_helper-&gt;flashMessenger-&gt;getMessages();
+        
+         $logger = new Zend_Log();
+         $r = new ReflectionClass($logger);
+         $this-&gt;view-&gt;priorities = array_flip($r-&gt;getConstants());
+
+    }
+
+    public function logAction()
+    {
+          $id = $this-&gt;_request-&gt;getParam('id', 0);  
+
+          $logger = new Zend_Log();
+          $format = '%timestamp% %priorityName% (%priority%): '.
+            '[%module%] [%controller%] %message%';                                                                                                
+          $formatter = new Zend_Log_Formatter_Simple($format);
+          
+          $writer = new App_Log_Writer_CouchDb($this-&gt;_config-&gt;couchdb-&gt;db, $this-&gt;_config-&gt;couchdb);
+          $writer-&gt;setFormatter($formatter);
+
+          $logger-&gt;addWriter($writer);
+          $logger-&gt;setEventItem('module', $this-&gt;getRequest()-&gt;getModuleName());
+          $logger-&gt;setEventItem('controller', $this-&gt;getRequest()-&gt;getControllerName());                        
+          $logger-&gt;log("Testovani chyba", $id);
+          $this-&gt;_helper-&gt;flashMessenger-&gt;addMessage('Log item saved');
+          $this-&gt;_helper-&gt;redirector('index');
+    }
+
+
+}
+</pre>
+
+In controller I call view in CouchDb database and this use parametr log level or time interval for display logs. For manage views in CouchDb can use <a href="http://wiki.apache.org/couchdb/Getting_started_with_Futon">Futon</a>.
+
+In controller i create two views.
+
+First for priority, save as: logger/log_by_prior
+<pre>
+function(doc) {
+  if (doc.priority) {
+     emit(doc.priority, [doc.priorityName, doc.timestamp, doc.message, doc.module, doc.controller]);
+  }
+}
+</pre>
+Second for timestamp, save as: logger/log_by_timestamp
+<pre>
+function(doc) {
+  if (doc.timestamp) {
+     emit(doc.timestamp, [doc.priorityName, doc.message, doc.module, doc.controller]);
+  }
+}
+</pre>
+
+Whole example you can find on <a href="http://github.com/abtris/phplogger-couchdb">my github</a>. In example using CouchDb library make by <a href="http://github.com/weierophinney/phly">Matthew Weier O’Phinney</a> and I make some improvement for actual version CouchDb 1.0.1.
+
+I think this is useful solution for many applications. 

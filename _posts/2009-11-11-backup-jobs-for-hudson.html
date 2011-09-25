@@ -1,0 +1,27 @@
+--- 
+layout: post
+title: Backup jobs for Hudson
+published: true
+meta: 
+  delicious: a:3:{s:5:"count";s:1:"6";s:9:"post_tags";s:0:"";s:4:"time";s:10:"1315687438";}
+  _edit_lock: "1257928167"
+  _edit_last: "2153812"
+  reddit: a:2:{s:5:"count";s:1:"0";s:4:"time";s:10:"1315952955";}
+tags: 
+- backup
+- hudson
+- php
+type: post
+status: publish
+---
+<p>Hudson has new version every week. Before migration I recommend backup jobs and plugins. For backup you can used my <a href="http://github.com/abtris/hudson-manager">hudson-manager</a>. It's Ant script with some targets. Source you can see at <a href="http://gist.github.com/231775">http://gist.github.com/231775</a>.</p>
+
+<p>In <code>manager.properties</code> you set directories and days after delete old backups.</p>
+<p>
+To run backup use cron with this parameters:
+<pre>
+05 10,15 * * 1-5 /usr/bin/ant -f /srv/hudson/hudson-manager/manager.xml backupOnlyJobs
+05 19 * * 1-5 /usr/bin/ant -f /srv/hudson/hudson-manager/manager.xml backup
+</pre>
+</p>
+<p>Bigger backup i make one per day and minor backup (jobs only) twice per day. In full backup are stored plugins and jobs. Sometimes you can after upgrade plugins and backup is useful.</p>

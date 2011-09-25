@@ -1,0 +1,63 @@
+--- 
+layout: post
+title: Hudson upgrade 1.339 to 1.348
+published: true
+meta: 
+  delicious: a:3:{s:5:"count";s:1:"0";s:9:"post_tags";s:0:"";s:4:"time";s:10:"1315687436";}
+  _edit_last: "2153812"
+  _edit_lock: "1267629913"
+  reddit: a:2:{s:5:"count";s:1:"0";s:4:"time";s:10:"1315952955";}
+tags: 
+- cie
+- hudson
+- section view plugin
+- upgrade
+type: post
+status: publish
+---
+We try upgrade Hudson 1.339 to 1.342 and more and we have problems with Section View plugin.
+
+<code>
+[!] Error
+org.jvnet.hudson.reactor.ReactorException: hudson.util.IOException2:
+Unable to read /srv/tomcat/.hudson/config.xml
+at org.jvnet.hudson.reactor.Reactor.execute(Reactor.java:246)
+at hudson.model.Hudson.executeReactor(Hudson.java:666)
+at hudson.model.Hudson.(Hudson.java:585)
+at hudson.WebAppMain$2.run(WebAppMain.java:224)
+Caused by: hudson.util.IOException2: Unable to read
+/srv/tomcat/.hudson/config.xml
+at hudson.XmlFile.unmarshal(XmlFile.java:154)
+at hudson.model.Hudson$11.run(Hudson.java:2095)
+at
+org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+at hudson.model.Hudson$3.runTask(Hudson.java:648)
+at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+at java.lang.Thread.run(Thread.java:619)
+Caused by: java.lang.NoSuchFieldError: DESCRIPTOR
+at hudson.plugins.sectioned_view.ListViewSection.(ListViewSection.java:37)
+at
+...
+</code>
+
+Solution is so complicated.
+<ol>
+	<li>Stop using Section View plugin</li>
+	<li>Stop Hudson</li>
+	<li>Backup /user/.hudson/config.xml file</li>
+	<li>Delete config.xml</li>
+	<li>Make upgrade to last Hudson war</li>
+	<li>Start Hudson</li>
+	<li>Upgrade Section view plugin</li>
+	<li>Start using Section View Plugin</li>
+	<li>Stop hudson</li>
+	<li>Restore config.xml from backup</li>
+	<li>Start Hudson</li>
+</ol>
+All working! Good luck!

@@ -1,0 +1,46 @@
+--- 
+layout: post
+title: PHP Class for Hudson
+published: true
+meta: 
+  delicious: a:3:{s:5:"count";s:1:"0";s:9:"post_tags";s:0:"";s:4:"time";s:10:"1315952956";}
+  _edit_last: "2153812"
+  _edit_lock: "1241081067"
+  reddit: a:2:{s:5:"count";s:1:"0";s:4:"time";s:10:"1315952957";}
+tags: 
+- hudson
+- php
+type: post
+status: publish
+---
+I make php class for work with Hudson (<a href="http://code.google.com/p/php4hudson/">http://code.google.com/p/php4hudson/</a>). Is useful for save all jobs configs and deploy jobs on another server or some multichanges in jobs. Useful is easy and some example is in wiki.
+
+<h3>Save all config.xml</h3>
+<code>
+/**
+ * Retrive all config.xml and save into directory
+ */
+require_once ("src/phphudson.php");
+$hudson = new PhpHudson('http://localhost:8080/');
+// save all jobs config into temp
+$hudson-&gt;getAllConfigs("/tmp/hudson/");
+</code>
+
+<h3>Recreate all jobs</h3>
+<code>
+/**
+ * Read all config.xml from directory and create jobs in Hudson
+ */
+require_once ("src/phphudson.php");
+$hudson = new PhpHudson('http://localhost:8080/');
+$dir = '/tmp/hudson/';
+if ($handle = opendir($dir)) {
+    echo "Directory handle: $handle\n";
+    echo "Files:\n";
+    while (false !== ($file = readdir($handle))) {
+        echo "$file\n";
+        $hudson-&gt;createJob(basename(str_replace("-config.xml", "", $file)), file_get_contents($dir . $file));
+    }
+    closedir($handle);
+}
+</code>

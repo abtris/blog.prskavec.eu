@@ -1,0 +1,61 @@
+--- 
+layout: post
+title: Zend Server CE and Xdebug install on Ubuntu
+published: true
+meta: 
+  delicious: a:3:{s:5:"count";s:2:"13";s:9:"post_tags";s:0:"";s:4:"time";s:10:"1315952955";}
+  _edit_lock: "1242895581"
+  _edit_last: "2153812"
+  reddit: a:2:{s:5:"count";s:1:"0";s:4:"time";s:10:"1315952956";}
+tags: 
+- php
+- xdebug
+- zend server
+type: post
+status: publish
+---
+<h2>Install Zend Server CE</h2>
+<ol>
+	<li>Open terminal and login as root <code>root sudo -i</code></li>
+             <li>Edit sources list <code>nano /etc/apt/sources.list</code></li>
+             <li>Add row: <code>deb http://repos.zend.com/deb/ce ce non-free</code></li>
+             <li>Get and install key:  <code>wget http://repos.zend.com/deb/zend.key -O- |apt-key add -  </code></li>
+	<li>Update repository: <code>apt-get update</code> </li>
+	<li>Install Zend Server CE: <code>aptitude install zend-ce</code>  </li>
+
+</ol>
+
+<h2>Install Xdebug</h2>
+<ol>	
+<li>You have to have this packages installed: <code>build-essential, autoconf</code>.
+<code>
+sudo apt-get install build-essential 
+sudo apt-get install autoconf </code>
+</li>
+<li>Get Xdebug source, unpack and compile.
+<code>
+wget http://www.xdebug.org/files/xdebug-2.0.4.tgz  
+tar -xzf xdebug-2.0.4.tgz  
+cd xdebug-2.0.4/  
+/usr/local/zend/bin/phpize  
+./configure --enable-xdebug --with-php-config=/usr/local/zend/bin/php-config  
+make</code>  
+</li>
+	<li>Compiled library is in <code>xdebug-2.0.4/modules/xdebug.so</code></li>
+	<li>Copy library  into <code>/usr/local/zend/lib/debugger/xdebug.so</code>
+
+<code>cp modules/xdebug.so /usr/local/zend/lib/debugger/xdebug.so </code></li>
+<li>Edit file <code>/usr/local/zend/etc/ext.d/debugger.ini</code> and comment row (add semicolon)
+
+<code>;zend_extension_manager.dir.debugger=/usr/local/zend/lib/debugger</code>
+
+</li>
+<li>Add at end <code>/usr/local/zend/etc/php.ini</code> new row with
+
+<code>zend_extension=/usr/local/zend/lib/debugger/xdebug.so</code>
+</li>
+<li>Restart server <code>/etc/init.d/zend-server restart</code></li>
+</ol>
+
+
+
