@@ -5,13 +5,11 @@ layout: home
 <div id="content">
 
 	<h2>
-	<a href="{{ page.url }}" class="h3">{{ page.title }}</a>
-	<small>
-		<date>{{ page.date | date_to_string }}</date>
-	</small>
+	<a href="{{ page.url }}">{{ page.title }}</a> - <date>{{ page.date | date_to_string }}</date>
 	</h2>
+    <div style="font-size: 90%; padding: 1em 2em;">
     {{page.content}}
-
+    </div>
 </div>
 
 {% include sidebar.html %}

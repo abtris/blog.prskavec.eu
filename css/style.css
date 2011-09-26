@@ -600,3 +600,19 @@ min-height: 1px;
 * html #nav ul li a {
 display: inline;
 }
+
+
+
+
+code, pre {
+ white-space: pre-wrap;
+ white-space: -moz-pre-wrap;
+ white-space: -o-pre-wrap;
+ background: #faf8f0;
+}
+code, pre {
+ display: block;
+ padding: 0.5em 1em;
+ margin: 0.5em;
+ border: 1px solid #bebab0;
+}
