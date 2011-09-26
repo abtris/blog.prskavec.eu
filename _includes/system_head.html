@@ -1,25 +1,10 @@
-<!DOCTYPE html>
-<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
-<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
-<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
-<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="google-site-verification" content="{{ site.sitemap }}">
-	<link href="{{ site.url }}atom.xml" rel="alternate" title="{{ site.sitename }} | {{ site.tagline }}" type="application/atom+xml">
-	<link rel="stylesheet" media="all" href="/css/master.css">
-	<link rel="stylesheet" media="all" href="/css/mediaqueries.css">
-	<script src="/js/modernizr.js"></script>
-	{% case page.layout %}
-	{% when 'home' %}
-		<title>{{ site.sitename }} | {{ site.tagline }}</title>
-		<meta name="description" content="{{ page.desctiption }}">
-	{% when 'post' %}
-		<title>{{ page.title }} | {{ site.sitename }} | {{ site.tagline }}</title>
-		<meta name="description" content="{{ content | strip_html | truncatewords: 25 }}">
-	{% else %}
-		<title>{{ page.title }} | {{ site.sitename }} | {{ site.tagline }}</title>
-		<meta name="description" content="{{ page.desctiption }}">
-	{% endcase %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+<head profile="http://gmpg.org/xfn/11">
+<title>WordPress Test</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="description" content="some smart, sophisticated WordPress themes" />
+<link href="/css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<meta name='robots' content='noindex,nofollow' />
+<style type="text/css">.recentcomments a{display:inline !important;padding: 0 !important;margin: 0 !important;}</style>
 </head>
