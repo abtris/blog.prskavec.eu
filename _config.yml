@@ -1,9 +1,1 @@
-auto: true
-server: true
-baseurl: /blog.prskavec.net
-permalink: date
-safe: true
-source: blog.prskavec.net
-destination: _site
-lsi: false
-pygments: true
+permalink: pretty
